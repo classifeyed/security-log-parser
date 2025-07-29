@@ -2,10 +2,12 @@ import json
 import re
 
 with open('<File Path for log file>', 'r') as f:
-
+    # Initialize a list to hold the log entries
+    # and lists to hold the parsed components   
     # Lists to hold log entries
     log_entries = []
-
+    # Initialize lists to hold parsed components
+    # Each list corresponds to a component of the log entry
     # Lists to hold parsed log components 
     timestamps = []
     hostnames = []
@@ -17,6 +19,8 @@ with open('<File Path for log file>', 'r') as f:
     port = []
 
     # Read the file line by line
+    # and parse each line into its components
+    # Use regex to extract specific patterns
     for line in f:
         timestamps.append(" ".join(line.split()[:3]))
         hostnames.append(" ".join(line.split()[3:4]))
@@ -35,7 +39,7 @@ with open('<File Path for log file>', 'r') as f:
             source_ip.append("Unknown")
         usernames = re.search(r'for (?:invalid user )?(\w+)', line)
         if usernames:
-            username.append(usernames.group(0))
+            username.append(usernames.group(1))
         else:
             username.append("Unknown")
         port_match = re.search(r'port (\d+)', line)
@@ -43,25 +47,18 @@ with open('<File Path for log file>', 'r') as f:
             port.append(port_match.group(1))
         else:
             port.append("Unknown")
-
-
-    # for i in range(len(timestamps)):
-    #    print(f"{timestamps[i]} | {hostnames[i]} | {process_names[i]} | {messages[i]} | {source_ip[i]} | {username[i]} | {outcome[i]}")
-    # Close the file after reading
-    # f.close()
-
-    for i in range(len(timestamps)):
         entry = {
-            "timestamp": timestamps[i],
-            "hostname": hostnames[i],
-            "process_name": process_names[i],
-            "message": messages[i],
-            "source_ip": source_ip[i],
-            "username": username[i],
-            "outcome": outcome[i],
-            "port": port[i]
+            "timestamp": timestamps[-1],
+            "hostname": hostnames[-1],
+            "process_name": process_names[-1],
+            "message": messages[-1],
+            "source_ip": source_ip[-1],
+            "username": username[-1],
+            "outcome": outcome[-1],
+            "port": port[-1]
         }
         log_entries.append(entry)
-
+        
+# Save the parsed log entries to a JSON file
 with open('normalized_logs.json', 'w') as outfile:
     json.dump(log_entries, outfile, indent=2)
